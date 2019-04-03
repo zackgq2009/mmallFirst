@@ -36,6 +36,7 @@ public class UserController {
         if (response.isSuccess()) {
             session.setAttribute(Const.CURRENT_USER,response.getData());
         }
+        return response;
     }
 }
 
