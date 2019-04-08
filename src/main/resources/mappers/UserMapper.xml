@@ -313,4 +313,23 @@
     from mmall_user
     where username = #{usernameA} and password = #{passwordA}
   </select>
+
+  <select id="checkEmail" parameterType="string" resultType="int">
+    select count(1);
+    from mmall_user
+    where email = #{email}
+  </select>
+
+  <select id="getQuestionByUsername" parameterType="string" resultType="string">
+    select question
+    from mmall_user
+    where username = #{username}
+  </select>
+
+  <select id="checkAnswer" parameterType="map" resultType="int">
+    select count(1)
+    from mmall_user
+    where username = #{username} and question = #{question} and answer = #{answer}
+  </select>
+
 </mapper>
