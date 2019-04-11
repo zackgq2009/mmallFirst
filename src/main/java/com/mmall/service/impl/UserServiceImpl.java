@@ -11,6 +11,7 @@ import net.sf.jsqlparser.schema.Server;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sun.tools.jstat.Token;
 
 import javax.servlet.http.HttpSession;
 import java.util.UUID;
@@ -108,7 +109,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public ServerResponse<String> forgetQuestion(String username) {
-        ServerResponse<String> validResult = this.checkValid(Const.USERNAME, username);
+        ServerResponse<String> validResult = this.checkValid(username, Const.USERNAME);
         if (validResult.isSuccess()) {
             return ServerResponse.createByErrorMessage("输入的用户名不存在");
         }
@@ -125,8 +126,10 @@ public class UserServiceImpl implements IUserService {
         if (resultCount > 0) {
             //说明问题以及问题答案是这个用户的，并且是正确的，这个时候我们不只是单纯的传出我们的提示信息，主要是要把临时token传出去
 //            return ServerResponse.createBySuccessMessage("提示问题的答案正确");
+            //构建本地缓存，调用链的方式 ,1000是设置缓存的初始化容量，maximumSize是设置缓存最大容量，当超过了最大容量，guava将使用LRU算法（最少使用算法），来移除缓存项
+            //expireAfterAccess(12,TimeUnit.HOURS)设置缓存有效期为12个小时
             String forgetToken = UUID.randomUUID().toString();
-            TokenCache.setKey("token_" + username, forgetToken);
+            TokenCache.setKey(TokenCache.TOKEN_PRIFIX + username, forgetToken);
             return ServerResponse.createBySuccess(forgetToken);
         } else {
             return ServerResponse.createByErrorMessage("提示问题的答案错误");
@@ -134,7 +137,55 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public ServerResponse<String> changePassword(String username, String oldPassword, String newPassword) {
-        return null;
+    public ServerResponse<String> changePasswordByToken(String username, String newPassword, String token) {
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(token)) {
+            ServerResponse<String> validResult = this.checkValid(username, Const.USERNAME);
+            if (validResult.isSuccess()) {
+                return ServerResponse.createByErrorMessage("输入的用户名不存在");
+            } else {
+                String tokenValue = TokenCache.getValue(TokenCache.TOKEN_PRIFIX + username);
+                if (org.apache.commons.lang3.StringUtils.equals(tokenValue, token)) {
+                    String MD5NewPassword = MD5Util.MD5EncodeUtf8(newPassword);
+                    int updateResult = userMapper.updatePasswordByToken(username, MD5NewPassword);
+                    if (updateResult > 0) {
+                        return ServerResponse.createBySuccessMessage("密码修改成功");
+                    } else {
+                        return ServerResponse.createByErrorMessage("密码修改失败");
+                    }
+                } else {
+                    return ServerResponse.createByErrorMessage("token无效或者过期");
+                }
+            }
+        } else {
+            return ServerResponse.createByErrorMessage("token不合法");
+        }
     }
+
+    @Override
+    public ServerResponse<String> changePasswordByOldPassword(User user, String oldPassword, String newPassword) {
+        String MD5OldPassword = MD5Util.MD5EncodeUtf8(oldPassword);
+        String MD5NewPassword = MD5Util.MD5EncodeUtf8(newPassword);
+        int userId = user.getId();
+
+//        int updateResult = userMapper.updatePasswordByOldPassword(userId, MD5OldPassword, MD5NewPassword);
+//        if (updateResult > 0) {
+//            return ServerResponse.createBySuccessMessage("密码修改成功");
+//        } else {
+//            return ServerResponse.createByErrorMessage("密码修改失败");
+//        }
+        int checkResult = userMapper.checkPassword(userId, MD5OldPassword);
+        if (checkResult > 0) {
+            user.setPassword(MD5NewPassword);
+            int updatePasswordResult = userMapper.updateByPrimaryKeySelective(user);
+            if (updatePasswordResult > 0) {
+                return ServerResponse.createBySuccessMessage("密码修改成功");
+            } else {
+                return ServerResponse.createByErrorMessage("密码修改失败");
+            }
+        } else {
+            return ServerResponse.createByErrorMessage("输入的旧密码错误");
+        }
+    }
+
+
 }

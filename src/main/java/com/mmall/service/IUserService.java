@@ -21,5 +21,7 @@ public interface IUserService {
 
     ServerResponse<String> checkAnswer(String username, String question, String answer);
 
-    ServerResponse<String> changePassword(String username, String oldPassword, String newPassword);
+    ServerResponse<String> changePasswordByToken(String username, String newPassword, String token);
+
+    ServerResponse<String> changePasswordByOldPassword(User user, String oldPassword, String newPassword);
 }

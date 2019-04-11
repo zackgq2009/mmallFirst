@@ -81,10 +81,20 @@ public class UserController {
         return iUserService.checkAnswer(username, question, answer);
     }
 
-    @RequestMapping(value = ".do", method = RequestMethod.POST)
+    @RequestMapping(value = "changePasswordByToken.do", method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse<String> changePassword(String username, String oldPassword, String newPassword) {
-        return null;
+    public ServerResponse<String> changePasswordByToken(String username, String newPassword, String token) {
+        return iUserService.changePasswordByToken(username, newPassword, token);
+    }
+
+    @RequestMapping(value = "changePasswordByOldPassword.do", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<String> changePasswordByOldPassword(String oldPassword, String newPassword, HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user != null) {
+            return iUserService.changePasswordByOldPassword(user, oldPassword, newPassword);
+        }
+        return ServerResponse.createByErrorMessage("用户未登录，或许账户有问题，暂时无法修改原有密码");
     }
 
 }
