@@ -31,4 +31,6 @@ public interface UserMapper {
     int updatePasswordByOldPassword(@Param("userId") Integer userId, @Param("oldPassword") String oldPassword, @Param("newPassword") String newPassword);
 
     int checkPassword(@Param("userId") Integer userId,@Param("password") String password);
+
+    int checkEmailByUserId(@Param("userId") Integer userId, @Param("email") String email);
 }

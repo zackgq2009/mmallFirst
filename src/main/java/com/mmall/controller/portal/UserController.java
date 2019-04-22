@@ -69,6 +69,29 @@ public class UserController {
         return ServerResponse.createByErrorMessage("用户貌似未登陆，暂时无法获取到用户的信息，请登陆后再进行尝试");
     }
 
+    @RequestMapping(value = "updateUserInfo.do", method = RequestMethod.GET)
+    @ResponseBody
+    //注意两点，第一是username不能更改，id是从session中获取到的，第二是我们要去验证email是否被其他用户使用过了，如果使用过则这个邮箱就不能被再次使用了
+    public ServerResponse<User> updateUserInfo(HttpSession session, User newUser) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorMessage("用户貌似未登录，暂时无法获取到用户的信息，请登录后再进行尝试");
+        } else {
+            int userId = user.getId();
+            String username = user.getUsername();
+
+            //强制把id跟username绑定要传进来的User上，这样可以防止横向越权
+            newUser.setId(userId);
+            newUser.setUsername(username);
+            ServerResponse<User> updateResult = iUserService.updateUserInfo(newUser);
+            if (updateResult.isSuccess()) {
+                session.setAttribute(Const.CURRENT_USER, updateResult.getData());
+            }
+            newUser.setUsername(username);
+            return iUserService.updateUserInfo(newUser);
+        }
+    }
+
     @RequestMapping(value = "forgetQuestion.do", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> forgetQuestion(String username) {

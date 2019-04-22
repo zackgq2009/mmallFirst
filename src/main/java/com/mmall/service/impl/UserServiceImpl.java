@@ -187,5 +187,39 @@ public class UserServiceImpl implements IUserService {
         }
     }
 
+    @Override
+    public ServerResponse<User> updateUserInfo(User user) {
+        //我要在update之前去确认一些数据，例如username，跟email
+        String username = user.getUsername();
+        int userId = user.getId();
+        String email = user.getEmail();
+
+        ServerResponse<String> checkValidResult = this.checkValid(username, Const.USERNAME);
+        if (checkValidResult.isSuccess()) {
+            return ServerResponse.createByErrorMessage("用户名有问题，这个用户名不存在");
+        } else {
+            int checkEmailResult = userMapper.checkEmailByUserId(userId, email);
+            if (checkEmailResult > 0) {
+                return ServerResponse.createByErrorMessage("此邮箱已经有人使用，请更改邮箱之后再次提交");
+            } else {
+                User updateUser = new User();
+                updateUser.setId(userId);
+                updateUser.setEmail(email);
+                updateUser.setUsername(username);
+                updateUser.setPhone(user.getPhone());
+                updateUser.setRole(user.getRole());
+                updateUser.setQuestion(user.getQuestion());
+                updateUser.setAnswer(user.getAnswer());
+
+                int updateResult = userMapper.updateByPrimaryKeySelective(updateUser);
+                if (updateResult > 0) {
+                    return ServerResponse.createBySuccess("更新用户信息成功", updateUser);
+                } else {
+                    return ServerResponse.createByErrorMessage("更新用户信息失败");
+                }
+            }
+        }
+    }
+
 
 }
