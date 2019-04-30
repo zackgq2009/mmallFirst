@@ -13,7 +13,5 @@ public interface ProductMapper {
 
     int updateByPrimaryKeySelective(Product record);
 
-    int updateByPrimaryKeyWithBLOBs(Product record);
-
     int updateByPrimaryKey(Product record);
 }

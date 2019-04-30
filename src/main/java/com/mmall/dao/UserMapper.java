@@ -18,19 +18,17 @@ public interface UserMapper {
 
     int checkUsername(String username);
 
-    User selectLogin(@Param("usernameA") String username, @Param("passwordA") String password);
-
     int checkEmail(String email);
 
-    String getQuestionByUsername(String username);
+    User selectLogin(@Param("username") String username, @Param("password")String password);
 
-    int checkAnswer(@Param("username") String username, @Param("question") String question, @Param("answer") String answer);
+    String selectQuestionByUsername(String username);
 
-    int updatePasswordByToken(@Param("username") String username,@Param("newPassword") String newPassword);
+    int checkAnswer(@Param("username")String username,@Param("question")String question,@Param("answer")String answer);
 
-    int updatePasswordByOldPassword(@Param("userId") Integer userId, @Param("oldPassword") String oldPassword, @Param("newPassword") String newPassword);
+    int updatePasswordByUsername(@Param("username")String username,@Param("passwordNew")String passwordNew);
 
-    int checkPassword(@Param("userId") Integer userId,@Param("password") String password);
+    int checkPassword(@Param(value="password")String password,@Param("userId")Integer userId);
 
-    int checkEmailByUserId(@Param("userId") Integer userId, @Param("email") String email);
+    int checkEmailByUserId(@Param(value="email")String email,@Param(value="userId")Integer userId);
 }

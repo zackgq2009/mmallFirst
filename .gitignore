@@ -1,6 +1,7 @@
 *.class
 
 #package file
+
 *.war
 *.ear
 
@@ -22,13 +23,24 @@ target/
 *.iml
 *.iws
 
-#temp file
+# temp file
+
 *.log
 *.cache
 *.diff
 *.patch
 *.tmp
 
-#system ignore
+# system ignore
 .DS_Store
 Thumbs.db
+
+
+
+
+
+
+
+
+
+
