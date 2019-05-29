@@ -8,17 +8,14 @@ import com.mmall.service.IUserService;
 import com.sun.corba.se.spi.activation.Server;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 
 /**
  * Created by johnny
  */
-@RestController
+@Controller
 @RequestMapping("/user/")
 public class UserController {
 
@@ -118,6 +115,12 @@ public class UserController {
         }
         user.setId(currentUser.getId());
         user.setUsername(currentUser.getUsername());
+        user.setEmail(currentUser.getEmail());
+        user.setPhone(currentUser.getPhone());
+        user.setQuestion(currentUser.getQuestion());
+        user.setAnswer(currentUser.getAnswer());
+        user.setRole(currentUser.getRole());
+
         ServerResponse<User> response = iUserService.updateInformation(user);
         if(response.isSuccess()){
             response.getData().setUsername(currentUser.getUsername());
@@ -135,34 +138,5 @@ public class UserController {
         }
         return iUserService.getInformation(currentUser.getId());
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
