@@ -30,7 +30,7 @@ public class CategoryManageController {
         //获取子分类
         User user = (User)session.getAttribute(Const.CURRENT_USER);
         if (user == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户为登录，请登录");
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录，请登录");
         } else if (iUserService.checkAdminRole(user).isSuccess()) {
             //校验是否是管理员
             //通过categoryId查询下子分类节点，并且不递归
