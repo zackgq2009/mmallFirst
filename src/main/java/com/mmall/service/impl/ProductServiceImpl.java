@@ -1,5 +1,7 @@
 package com.mmall.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.CategoryMapper;
@@ -10,9 +12,13 @@ import com.mmall.service.IProductService;
 import com.mmall.util.DateTimeUtil;
 import com.mmall.util.PropertiesUtil;
 import com.mmall.vo.ProductDetailVo;
+import com.mmall.vo.ProductListVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service("iProductService")
 public class ProductServiceImpl implements IProductService {
@@ -72,7 +78,7 @@ public class ProductServiceImpl implements IProductService {
     }
 
 
-    public ServerResponse manageProductDetail(Integer productId) {
+    public ServerResponse<ProductDetailVo> manageProductDetail(Integer productId) {
         if (productId == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         } else {
@@ -80,9 +86,33 @@ public class ProductServiceImpl implements IProductService {
             if (product == null) {
                 return ServerResponse.createByErrorMessage("查询不到该产品，产品已经下架或者已经删除");
             } else {
-                ProductDetailVo productDetailVo = this.assembleProductDetailVo(product);
+                ProductDetailVo productDetailVo = assembleProductDetailVo(product);
                 return ServerResponse.createBySuccess(productDetailVo);
             }
+        }
+    }
+
+    public ServerResponse<PageInfo> getProductList(Integer pageNum, Integer pageSize) {
+        if (pageNum == null && pageSize == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        } else {
+            //我们通过pageHelper这个插件来实现列表自动分页的功能
+            //第一步我们直接PageHelper.startPage(pageNum, pageSize)
+            //第二步我们就直接通过mapper对象进行查询，返回一个List
+            //第三步我们new出来一个PageInfo对象，并且构造的时候，传入list
+            //我们最终就需要这个pageInfo对象
+            PageHelper.startPage(pageNum, pageSize);
+            List<Product> productList = productMapper.selectProducts();
+
+            List<ProductListVo> productListVoList = new ArrayList<>();
+            for (Product item : productList
+            ) {
+                ProductListVo productListVo = assembleProductListVo(item);
+                productListVoList.add(productListVo);
+            }
+
+            PageInfo pageInfo = new PageInfo(productListVoList);
+            return ServerResponse.createBySuccess(pageInfo);
         }
     }
 
@@ -122,6 +152,21 @@ public class ProductServiceImpl implements IProductService {
 
         return productDetailVo;
 
+    }
+
+    private ProductListVo assembleProductListVo(Product product) {
+        ProductListVo productListVo = new ProductListVo();
+
+        productListVo.setId(product.getId());
+        productListVo.setCategoryId(product.getCategoryId());
+        productListVo.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix", "http://img.happymmall.com/"));
+        productListVo.setMainImage(product.getMainImage());
+        productListVo.setName(product.getName());
+        productListVo.setPrice(product.getPrice());
+        productListVo.setStatus(product.getStatus());
+        productListVo.setSubtitle(product.getSubtitle());
+
+        return productListVo;
     }
 
 }
