@@ -48,8 +48,8 @@ public class ProductServiceImpl implements IProductService {
                     return ServerResponse.createByErrorMessage("更新产品失败");
                 }
             } else {
-                //没有ID号，说明是保存新产品
-                int rowCount = productMapper.updateByPrimaryKeySelective(product);
+                //没有ID号，说明是插入新产品
+                int rowCount = productMapper.insertSelective(product);
                 if (rowCount > 0) {
                     return ServerResponse.createBySuccessMessage("创建产品成功");
                 } else {
