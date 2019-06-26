@@ -92,6 +92,21 @@ public class ProductManageController {
         }
     }
 
+    @RequestMapping(value = "search.do", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<PageInfo> searchProduct(HttpSession httpSession, @RequestParam(value = "productName") String productName, @RequestParam(value = "productId") Integer productId, @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum, @RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize) {
+        //根据productName或者productId来搜索到相应的product
+        User user = (User)httpSession.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录，请登录");
+        } else if (iUserService.checkAdminRole(user).isSuccess()) {
+            //校验是否是管理员
+            return iProductService.searchProduct(productName, productId, pageNum, pageSize);
+        } else {
+            return ServerResponse.createByErrorMessage("不是管理员在登录，无权进行操作");
+        }
+    }
+
 
 
 }

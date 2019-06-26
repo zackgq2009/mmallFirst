@@ -13,4 +13,6 @@ public interface IProductService {
     public ServerResponse manageProductDetail(Integer productId);
 
     public ServerResponse<PageInfo> getProductList(Integer pageNum, Integer pageSize);
+
+    public ServerResponse<PageInfo> searchProduct(String productName, Integer productId, Integer pageNum, Integer pageSize);
 }

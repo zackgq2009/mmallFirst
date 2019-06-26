@@ -182,4 +182,34 @@
     from mmall_product
     order by id asc
   </select>
+  <select id="selectByNameOrId" resultMap="BaseResultMap" parameterType="map">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_product
+    where name like #{productName} or id = #{productId}
+    order by id asc
+  </select>
+  <select id="selectByNameAndId" resultMap="BaseResultMap" parameterType="map" >
+    select
+    <include refid="Base_Column_List"></include>
+    <where>
+      <if test="productName != null">
+        and name like #{productName1}
+      </if>
+      <if test="productId != null">
+        and id = #{productId1}
+      </if>
+    </where>
+  </select>
+<!--  <select id="selectByNameAndId" resultMap="BaseResultMap" parameterType="map" >-->
+<!--    select-->
+<!--    <include refid="Base_Column_List"></include>-->
+<!--    where 1 = 1-->
+<!--    <if test="productName != null">-->
+<!--      and name like #{productName1}-->
+<!--    </if>-->
+<!--    <if test="productId != null">-->
+<!--      and id = #{productId1}-->
+<!--    </if>-->
+<!--  </select>-->
 </mapper>
