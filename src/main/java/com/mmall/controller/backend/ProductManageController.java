@@ -12,7 +12,9 @@ import com.mmall.service.IUserService;
 import com.mmall.vo.ProductDetailVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -106,6 +108,22 @@ public class ProductManageController {
             return ServerResponse.createByErrorMessage("不是管理员在登录，无权进行操作");
         }
     }
+
+    @RequestMapping(value = "upload.do", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<String> upload(MultipartFile file, HttpServletRequest request) {
+        String path = request.getSession().getServletContext().getRealPath("upload");
+//        System.out.println(path);
+        return null;
+    }
+
+
+    @RequestMapping(value = "richTextUpload.do", method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse richTextUpload(MultipartFile file, HttpServletRequest request) {
+        return null;
+    }
+
 
 
 
