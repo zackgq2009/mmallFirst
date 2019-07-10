@@ -192,6 +192,7 @@
   <select id="selectByNameAndId" resultMap="BaseResultMap" parameterType="map" >
     select
     <include refid="Base_Column_List"></include>
+    from mmall_product
     <where>
       <if test="productName != null">
         and name like #{productName1}
@@ -212,4 +213,20 @@
 <!--      and id = #{productId1}-->
 <!--    </if>-->
 <!--  </select>-->
+  <select id="selectByNameAndCategoryId" resultMap="BaseResultMap" parameterType="map">
+    select
+    <include refid="Base_Column_List"></include>
+    from mmall_product
+    where status = 1
+      <if test="productName != null">
+        and name like #{productName1}
+      </if>
+      <if test="categoryIds != null">
+        and category_id in
+        <foreach collection="categoryIds" item="item" index="index" open="(" separator="," close=")" >
+          #{item}
+        </foreach>
+      </if>
+  </select>
+
 </mapper>

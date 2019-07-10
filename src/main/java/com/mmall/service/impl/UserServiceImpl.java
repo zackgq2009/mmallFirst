@@ -113,7 +113,7 @@ public class UserServiceImpl implements IUserService {
         if(org.apache.commons.lang3.StringUtils.isBlank(forgetToken)){
             return ServerResponse.createByErrorMessage("参数错误,token需要传递");
         }
-        ServerResponse validResponse = this.checkValid(username,Const.USERNAME);
+        ServerResponse validResponse = checkValid(username,Const.USERNAME);
         if(validResponse.isSuccess()){
             //用户不存在
             return ServerResponse.createByErrorMessage("用户不存在");

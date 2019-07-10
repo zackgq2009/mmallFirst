@@ -12,7 +12,7 @@ import java.util.List;
 
 public class FTPUtil {
 
-    private Logger logger = LoggerFactory.getLogger(FTPUtil.class);
+    private static Logger logger = LoggerFactory.getLogger(FTPUtil.class);
 
     /**
      * ftp.server.ip=你的FTP服务器ip地址
@@ -22,7 +22,7 @@ public class FTPUtil {
     private static final String FTPIP = PropertiesUtil.getProperty("ftp.server.ip", "127.0.0.1");
     private static final String FTPUserName = PropertiesUtil.getProperty("ftp.user", "admin");
     private static final String FTPPassword = PropertiesUtil.getProperty("ftp.pass", "password");
-    private static final int FTPPort = 22;
+    private static final int FTPPort = 21;
 
     private String IP;
     private int port;
@@ -40,13 +40,16 @@ public class FTPUtil {
         this.password = password;
     }
 
-    public static boolean uploadFile(String remotePath, List<File> fileList) {
+    public static boolean uploadFile(String remotePath, List<File> fileList) throws IOException {
         FTPUtil ftpUtil = new FTPUtil(FTPIP, FTPPort, FTPUserName, FTPPassword);
-
+        logger.info("开始上传文件");
+        boolean result = ftpUtil.upload(remotePath, fileList);
+        logger.info("结束上传文件");
+        return result;
     }
 
     //把上传文件的具体业务进行封装
-    private boolean uploadFile(String remotePath, List<File> fileList) {
+    private boolean upload(String remotePath, List<File> fileList) throws IOException {
         boolean uploaded = false;
         FileInputStream fileInputStream = null;
 
@@ -62,15 +65,20 @@ public class FTPUtil {
                 for (File item : fileList
                         ) {
                     fileInputStream = new FileInputStream(item);
-                    ftpClient.storeFile(item.getName(), fileInputStream);
-
+                    //storeFile方法是上传文件，需要传入remote以及fis
+                    uploaded = ftpClient.storeFile(item.getName(), fileInputStream);
                 }
             } catch (IOException e) {
                 logger.error("上传文件有异常", e);
+                uploaded = false;
             } finally {
-                return uploaded;
+                //关闭所有的IO
+                fileInputStream.close();
+                ftpClient.disconnect();
+//                return uploaded;
             }
         }
+        return uploaded;
     }
 
     //把连接FTP服务器进行封装
@@ -82,6 +90,7 @@ public class FTPUtil {
             isSuccess = ftpClient.login(userName, password);
         } catch (IOException e) {
             logger.error("连接FTP服务器异常", e);
+            isSuccess = false;
         } finally {
             return isSuccess;
         }

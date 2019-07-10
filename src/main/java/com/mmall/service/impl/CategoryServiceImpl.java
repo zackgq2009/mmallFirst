@@ -92,6 +92,7 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     //通过递归查询获取搜索的子分类节点
+    //使用set是使用set的去重机制，保证获取到的categorySet是一个没有重复的集合
     private Set<Category> getAllChildrenCategory(Set<Category> categorySet, Integer categoryId) {
         Category category = categoryMapper.selectByPrimaryKey(categoryId);
         if (category != null) {

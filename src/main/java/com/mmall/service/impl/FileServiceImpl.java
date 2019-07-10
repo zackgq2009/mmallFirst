@@ -1,14 +1,19 @@
 package com.mmall.service.impl;
 
+import com.google.common.collect.Lists;
 import com.mmall.service.IFileService;
+import com.mmall.util.FTPUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
+@Service("iFileService")
 public class FileServiceImpl implements IFileService {
 
     private Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
@@ -35,16 +40,16 @@ public class FileServiceImpl implements IFileService {
             //上傳文件成功
 
             //todo 上傳到FTP上
+            FTPUtil.uploadFile(path, Lists.newArrayList(uploadFile));
 
             //todo 上傳完ftp之後，把項目中upload目錄下的文件給刪除，避免文件夾中的文件越來越多
-
-
+            uploadFile.delete();
 
         } catch (IOException e) {
             logger.error("上傳文件有異常", e);
+            return null;
         }
-
-        return  uploadFile.getName();
+        return uploadFile.getName();
     }
 
 }
